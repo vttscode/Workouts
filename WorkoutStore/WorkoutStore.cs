@@ -6,6 +6,7 @@ namespace Workouts.WorkoutStore
     {     
         public static List<Workout> workoutList = new List<Workout>
         {
+            // Fake data
             new Workout
             {
                 Id = 1,

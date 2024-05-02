@@ -7,7 +7,6 @@ using AutoMapper;
 using FluentValidation;
 using System.Net;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -27,20 +26,37 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapGet("/api/getWorkouts", () => {
-    APIResponse response = new();
+    APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };
     response.Result = WorkoutStore.workoutList;
-    response.IsSuccess = true;
-    response.StatusCode = HttpStatusCode.OK;
-    return Results.Ok(response);
-}).WithName("GetWorkouts").Produces<APIResponse>(200);
+    if (response.Result == null)
+    {
+        response.ErrorMessages.Add("Error");
+        return Results.BadRequest(response);
+    }
+    else
+    {
+        response.IsSuccess = true;
+        response.StatusCode = HttpStatusCode.OK;
+        return Results.Ok(response);
+    }
+}).WithName("GetWorkouts").Produces<APIResponse>(200).Produces(400);
 
 app.MapGet("/api/getWorkout/{id}", (int id) => {
-    APIResponse response = new();
+    APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };
     response.Result = WorkoutStore.workoutList.FirstOrDefault(u => u.Id == id);
-    response.IsSuccess = true;
-    response.StatusCode = HttpStatusCode.OK;
-    return Results.Ok(response);
-    }).WithName("GetWorkout").Produces<APIResponse>(200);
+    if (response.Result == null)
+    {
+        response.ErrorMessages.Add("Invalid Id");
+        return Results.BadRequest(response);
+    }
+    else
+    {
+        response.IsSuccess = true;
+        response.StatusCode = HttpStatusCode.OK;
+        return Results.Ok(response);
+    }
+    
+    }).WithName("GetWorkout").Produces<APIResponse>(200).Produces(400);
 
 app.MapPost("/api/createWorkout", async (IMapper _mapper, IValidator<WorkoutCreateDTO> _validation, [FromBody] WorkoutCreateDTO workoutCreateDTO) => {
     APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };   
@@ -78,7 +94,6 @@ app.MapPut("/api/updateWorkout", async (IMapper _mapper,
         workoutfromStore.Description = workoutUpdateDTO.Description;
         workoutfromStore.Exercises = workoutUpdateDTO.Exercises;
 
-
         response.Result = _mapper.Map<WorkoutDTO>(workoutfromStore); ;
         response.IsSuccess = true;
         response.StatusCode = HttpStatusCode.OK;
@@ -103,8 +118,6 @@ app.MapDelete("/api/deleteWorkout/{id}", (int id) => {
     }
 });
 
-
-
 app.MapGet("/api/getWorkoutSummary/{id}", (int id) => {
 
     APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };
@@ -113,7 +126,6 @@ app.MapGet("/api/getWorkoutSummary/{id}", (int id) => {
     {
         response.ErrorMessages.Add("Invalid Id");
         return Results.BadRequest(response);
-
     }
     else
     {
@@ -137,11 +149,7 @@ app.MapGet("/api/getWorkoutSummary/{id}", (int id) => {
 
         };
 
-
         //WorkoutSummaryStore.workoutSummaryList.Add((IEnumerable<WorkoutSummary>)summaryDTO);
-
-
-
 
         response.Result = summaryDTO;
         response.IsSuccess = true;
@@ -149,11 +157,6 @@ app.MapGet("/api/getWorkoutSummary/{id}", (int id) => {
         return Results.Ok(response);
     }
 }).WithName("GetWorkoutSummary").Produces<APIResponse>(200);
-
-
-
-
-
 
 app.Run();
 
