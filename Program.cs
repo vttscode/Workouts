@@ -25,6 +25,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//////////
 app.MapGet("/api/getWorkouts", () => {
     APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };
     response.Result = WorkoutStore.workoutList;
