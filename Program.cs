@@ -25,7 +25,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//////////
 app.MapGet("/api/getWorkouts", () => {
     APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };
     response.Result = WorkoutStore.workoutList;
@@ -55,13 +54,11 @@ app.MapGet("/api/getWorkout/{id}", (int id) => {
         response.IsSuccess = true;
         response.StatusCode = HttpStatusCode.OK;
         return Results.Ok(response);
-    }
-    
+    }    
     }).WithName("GetWorkout").Produces<APIResponse>(200).Produces(400);
 
 app.MapPost("/api/createWorkout", async (IMapper _mapper, IValidator<WorkoutCreateDTO> _validation, [FromBody] WorkoutCreateDTO workoutCreateDTO) => {
-    APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };   
-
+    APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest }; 
     var validationResult = await _validation.ValidateAsync(workoutCreateDTO);
     if (!validationResult.IsValid)
     {
@@ -69,11 +66,9 @@ app.MapPost("/api/createWorkout", async (IMapper _mapper, IValidator<WorkoutCrea
         return Results.BadRequest(response);
     }
     Workout workout = _mapper.Map <Workout> (workoutCreateDTO);
-
     workout.Id = WorkoutStore.workoutList.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
     WorkoutStore.workoutList.Add(workout);
-    WorkoutDTO workoutDTO = _mapper.Map<WorkoutDTO>(workout);
-    
+    WorkoutDTO workoutDTO = _mapper.Map<WorkoutDTO>(workout);    
     response.Result = workoutDTO;
     response.IsSuccess = true;
     response.StatusCode = HttpStatusCode.Created;
@@ -90,11 +85,9 @@ app.MapPut("/api/updateWorkout", async (IMapper _mapper,
             return Results.BadRequest(response);
         }
         Workout workoutfromStore = WorkoutStore.workoutList.FirstOrDefault(u => u.Id == workoutUpdateDTO.Id);
-
         workoutfromStore.Title = workoutUpdateDTO.Title;
         workoutfromStore.Description = workoutUpdateDTO.Description;
         workoutfromStore.Exercises = workoutUpdateDTO.Exercises;
-
         response.Result = _mapper.Map<WorkoutDTO>(workoutfromStore); ;
         response.IsSuccess = true;
         response.StatusCode = HttpStatusCode.OK;
@@ -120,7 +113,6 @@ app.MapDelete("/api/deleteWorkout/{id}", (int id) => {
 });
 
 app.MapGet("/api/getWorkoutSummary/{id}", (int id) => {
-
     APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };
     Workout workoutFomStore = WorkoutStore.workoutList.FirstOrDefault(u => u.Id == id);
     if (workoutFomStore == null)
@@ -139,19 +131,13 @@ app.MapGet("/api/getWorkoutSummary/{id}", (int id) => {
             int minutes = int.Parse(duration.Split(' ')[0]);
             totalMinutes += minutes;
         }
-
         WorkoutSummaryDTO summaryDTO = new WorkoutSummaryDTO
         {
-            //WorkoutId = WorkoutSummaryStore.workoutSummaryList.OrderByDescending(u => u.WorkoutId).FirstOrDefault().WorkoutId + 1,
             WorkoutId = id,
             TotalSets = totalSumSets,
             TotalReps = totalSumReps,
             TotalDuration = totalMinutes + " minutes"
-
         };
-
-        //WorkoutSummaryStore.workoutSummaryList.Add((IEnumerable<WorkoutSummary>)summaryDTO);
-
         response.Result = summaryDTO;
         response.IsSuccess = true;
         response.StatusCode = HttpStatusCode.OK;
