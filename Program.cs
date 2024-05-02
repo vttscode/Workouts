@@ -7,7 +7,6 @@ using AutoMapper;
 using FluentValidation;
 using System.Net;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -26,6 +25,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//////////
 app.MapGet("/api/getWorkouts", () => {
     APIResponse response = new();
     response.Result = WorkoutStore.workoutList;
